@@ -1,0 +1,175 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+
+    /* Surface hierarchy (GPUI-Kit neutral zinc canvas + crisp elevated surfaces) */
+    --kuara-bg: #fafafa;
+    --kuara-surface: #ffffff;
+    --kuara-surface-elevated: #ffffff;
+    --kuara-surface-muted: #f4f4f5;
+    --kuara-surface-hover: #f4f4f5;
+    --kuara-sidebar: #f6f6f7;
+
+    /* Structural 1px borders */
+    --kuara-border: #e4e4e7;
+    --kuara-border-strong: #d4d4d8;
+
+    /* Typography ink */
+    --kuara-fg: #09090b;
+    --kuara-fg-muted: #52525b;
+    --kuara-fg-subtle: #71717a;
+
+    /* Brand primary (Kuara Solar Amber) */
+    --kuara-primary: #d97706;
+    --kuara-primary-hover: #b45309;
+    --kuara-primary-fg: #ffffff;
+    --kuara-primary-soft: #fffbeb;
+    --kuara-primary-border: #fde68a;
+    --kuara-ring: #d97706;
+
+    /* Secondary solid (zinc-900 in light) */
+    --kuara-secondary: #18181b;
+    --kuara-secondary-hover: #27272a;
+    --kuara-secondary-fg: #fafafa;
+
+    /* Semantic statuses */
+    --kuara-success: #059669;
+    --kuara-success-hover: #047857;
+    --kuara-success-fg: #ffffff;
+    --kuara-success-soft: #ecfdf5;
+    --kuara-success-text: #065f46;
+    --kuara-success-border: #a7f3d0;
+
+    --kuara-warning: #d97706;
+    --kuara-warning-soft: #fffbeb;
+    --kuara-warning-text: #92400e;
+    --kuara-warning-border: #fde68a;
+
+    --kuara-danger: #e11d48;
+    --kuara-danger-hover: #be123c;
+    --kuara-danger-fg: #ffffff;
+    --kuara-danger-soft: #fff1f2;
+    --kuara-danger-text: #9f1239;
+    --kuara-danger-border: #fecdd3;
+
+    --kuara-info: #2563eb;
+    --kuara-info-soft: #eff6ff;
+    --kuara-info-text: #1e40af;
+    --kuara-info-border: #bfdbfe;
+
+    --kuara-violet: #7c3aed;
+    --kuara-violet-soft: #f5f3ff;
+    --kuara-violet-text: #5b21b6;
+    --kuara-violet-border: #ddd6fe;
+  }
+
+  .dark {
+    color-scheme: dark;
+
+    /* Surface hierarchy (GPUI-Kit Default Dark inspired zinc layers) */
+    --kuara-bg: #09090b;
+    --kuara-surface: #111114;
+    --kuara-surface-elevated: #18181b;
+    --kuara-surface-muted: #18181b;
+    --kuara-surface-hover: #222226;
+    --kuara-sidebar: #0c0c0f;
+
+    /* Structural 1px borders */
+    --kuara-border: #27272a;
+    --kuara-border-strong: #3f3f46;
+
+    /* Typography ink */
+    --kuara-fg: #fafafa;
+    --kuara-fg-muted: #a1a1aa;
+    --kuara-fg-subtle: #71717a;
+
+    /* Brand primary (Kuara Solar Amber — high contrast dark ink on solid amber) */
+    --kuara-primary: #f59e0b;
+    --kuara-primary-hover: #fbbf24;
+    --kuara-primary-fg: #09090b;
+    --kuara-primary-soft: rgba(245, 158, 11, 0.12);
+    --kuara-primary-border: rgba(245, 158, 11, 0.28);
+    --kuara-ring: #f59e0b;
+
+    /* Secondary solid */
+    --kuara-secondary: #fafafa;
+    --kuara-secondary-hover: #e4e4e7;
+    --kuara-secondary-fg: #09090b;
+
+    /* Semantic statuses */
+    --kuara-success: #10b981;
+    --kuara-success-hover: #34d399;
+    --kuara-success-fg: #052e16;
+    --kuara-success-soft: rgba(16, 185, 129, 0.12);
+    --kuara-success-text: #6ee7b7;
+    --kuara-success-border: rgba(16, 185, 129, 0.28);
+
+    --kuara-warning: #f59e0b;
+    --kuara-warning-soft: rgba(245, 158, 11, 0.12);
+    --kuara-warning-text: #fcd34d;
+    --kuara-warning-border: rgba(245, 158, 11, 0.28);
+
+    --kuara-danger: #f43f5e;
+    --kuara-danger-hover: #fb7185;
+    --kuara-danger-fg: #ffffff;
+    --kuara-danger-soft: rgba(244, 63, 94, 0.12);
+    --kuara-danger-text: #fda4af;
+    --kuara-danger-border: rgba(244, 63, 94, 0.28);
+
+    --kuara-info: #3b82f6;
+    --kuara-info-soft: rgba(59, 130, 246, 0.12);
+    --kuara-info-text: #93c5fd;
+    --kuara-info-border: rgba(59, 130, 246, 0.28);
+
+    --kuara-violet: #8b5cf6;
+    --kuara-violet-soft: rgba(139, 92, 246, 0.12);
+    --kuara-violet-text: #c4b5fd;
+    --kuara-violet-border: rgba(139, 92, 246, 0.28);
+  }
+
+  html {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--kuara-bg);
+    color: var(--kuara-fg);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* Crisp desktop-grade scrollbar across overflow containers */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--kuara-border-strong) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: var(--kuara-border-strong);
+    border-radius: 9999px;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: var(--kuara-fg-subtle);
+  }
+}
+
+@layer utilities {
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}

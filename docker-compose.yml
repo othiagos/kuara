@@ -1,0 +1,39 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: kuara-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: kuara
+      POSTGRES_PASSWORD: kuara_secret_password
+      POSTGRES_DB: kuara_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - kuara_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kuara -d kuara_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: kuara-backend
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgresql://kuara:kuara_secret_password@postgres:5432/kuara_db?schema=public
+      JWT_SECRET: kuara_super_jwt_secret_key_mvp_2026
+      PLATFORM_FEE_PERCENTAGE: 5
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  kuara_pgdata:

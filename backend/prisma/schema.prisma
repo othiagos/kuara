@@ -1,0 +1,215 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  CLIENT
+  PROVIDER
+  ADMIN
+}
+
+enum ProviderStatus {
+  PENDING_VERIFICATION
+  VERIFIED
+  REJECTED
+  SUSPENDED
+}
+
+enum ServiceStatus {
+  OPEN
+  PROPOSALS_RECEIVED
+  ESCROW_PENDING
+  IN_PROGRESS
+  COMPLETED_PENDING_APPROVAL
+  IN_DISPUTE
+  FINISHED
+  CANCELLED
+}
+
+enum EscrowStatus {
+  PENDING
+  HELD
+  RELEASED
+  REFUNDED
+  DISPUTED
+}
+
+enum ProposalStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+}
+
+enum MaterialPolicy {
+  CLIENT_SUPPLIES
+  PROVIDER_ADVANCE
+}
+
+model User {
+  id              String           @id @default(uuid())
+  email           String           @unique
+  passwordHash    String
+  name            String
+  phone           String
+  role            Role
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  providerProfile ProviderProfile?
+  clientOrders    ServiceOrder[]   @relation("ClientOrders")
+  directOrders    ServiceOrder[]   @relation("DirectServiceOrders")
+  proposals       Proposal[]       @relation("ProviderProposals")
+  sentMessages    Message[]
+  givenReviews    Review[]         @relation("ReviewsGiven")
+  receivedReviews Review[]         @relation("ReviewsReceived")
+}
+
+model ProviderProfile {
+  id              String         @id @default(uuid())
+  userId          String         @unique
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cpfCnpj         String         @unique
+  pixKey          String
+  bio             String?
+  categories      String[]
+  serviceAreas    String[]
+  status          ProviderStatus @default(PENDING_VERIFICATION)
+  rejectionReason String?
+  documentUrl     String?
+  addressProofUrl String?
+  ratingAverage   Float          @default(0.0)
+  ratingCount     Int            @default(0)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model ServiceOrder {
+  id                 String        @id @default(uuid())
+  clientId           String
+  client             User          @relation("ClientOrders", fields: [clientId], references: [id])
+  targetProviderId   String?
+  targetProvider     User?         @relation("DirectServiceOrders", fields: [targetProviderId], references: [id])
+  title              String
+  description        String
+  category           String
+  addressCity        String
+  addressState       String
+  addressZip         String
+  addressLine        String
+  photos             String[]
+  status             ServiceStatus @default(OPEN)
+  acceptedProposalId String?       @unique
+  acceptedProposal   Proposal?     @relation("AcceptedProposal", fields: [acceptedProposalId], references: [id])
+  cancelledReason    String?
+  cancelledAt        DateTime?
+  
+  completionPhotos   String[]
+  completedAt        DateTime?
+  autoReleaseAt      DateTime?
+
+  proposals          Proposal[]    @relation("OrderProposals")
+  escrow             Escrow?
+  messages           Message[]
+  dispute            Dispute?
+  reviews            Review[]
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+}
+
+model Proposal {
+  id                String         @id @default(uuid())
+  serviceOrderId    String
+  serviceOrder      ServiceOrder   @relation("OrderProposals", fields: [serviceOrderId], references: [id], onDelete: Cascade)
+  providerId        String
+  provider          User           @relation("ProviderProposals", fields: [providerId], references: [id])
+  description       String
+  estimatedDays     Int
+  laborCostCents    Int
+  materialCostCents Int            @default(0)
+  materialPolicy    MaterialPolicy @default(CLIENT_SUPPLIES)
+  materialsList     String?
+  totalCents        Int
+  isAccepted        Boolean        @default(false)
+  status            ProposalStatus @default(PENDING)
+  acceptedOrder     ServiceOrder?  @relation("AcceptedProposal")
+  messages          Message[]
+  createdAt         DateTime       @default(now())
+
+  @@unique([serviceOrderId, providerId])
+}
+
+model Escrow {
+  id                   String        @id @default(uuid())
+  serviceOrderId       String        @unique
+  serviceOrder         ServiceOrder  @relation(fields: [serviceOrderId], references: [id], onDelete: Cascade)
+  grossAmountCents     Int
+  laborAmountCents     Int           @default(0)
+  materialsAmountCents Int           @default(0)
+  materialsReleasedAt  DateTime?
+  materialProofUrls    String[]      @default([])
+  feeAmountCents       Int
+  netAmountCents       Int
+  refundedAmountCents  Int           @default(0)
+  status               EscrowStatus  @default(PENDING)
+  paymentProviderId    String?
+  paymentMethod        String?
+  paidAt               DateTime?
+  releasedAt           DateTime?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+}
+
+model Dispute {
+  id                    String       @id @default(uuid())
+  serviceOrderId        String       @unique
+  serviceOrder          ServiceOrder @relation(fields: [serviceOrderId], references: [id], onDelete: Cascade)
+  openedById            String?
+  reason                String
+  evidencePhotos        String[]
+  counterEvidenceReason String?
+  counterEvidencePhotos String[]     @default([])
+  decision              String?
+  providerReleaseCents  Int?
+  clientRefundCents     Int?
+  resolutionNotes       String?
+  status                String       @default("PENDING_REVIEW")
+  createdAt             DateTime     @default(now())
+  resolvedAt            DateTime?
+}
+
+model Review {
+  id             String       @id @default(uuid())
+  serviceOrderId String
+  serviceOrder   ServiceOrder @relation(fields: [serviceOrderId], references: [id], onDelete: Cascade)
+  authorId       String
+  author         User         @relation("ReviewsGiven", fields: [authorId], references: [id])
+  targetId       String
+  target         User         @relation("ReviewsReceived", fields: [targetId], references: [id])
+  rating         Int
+  tags           String[]
+  comment        String?
+  createdAt      DateTime     @default(now())
+
+  @@unique([serviceOrderId, authorId])
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  serviceOrderId String
+  serviceOrder   ServiceOrder @relation(fields: [serviceOrderId], references: [id], onDelete: Cascade)
+  proposalId     String?
+  proposal       Proposal?    @relation(fields: [proposalId], references: [id], onDelete: SetNull)
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id])
+  recipientId    String?
+  content        String
+  createdAt      DateTime     @default(now())
+
+  @@index([serviceOrderId, proposalId, createdAt])
+}

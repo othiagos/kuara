@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Environment files (keep .env.example committed)
+.env
+.env.local
+.env.*.local
+backend/.env
+frontend/.env
+
+# Build artifacts & TypeScript caches
+dist/
+*/dist/
+*.tsbuildinfo
+.vite/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / Editor files
+.DS_Store
+Thumbs.db
+
+# Local agent workspace files
+.agents/
