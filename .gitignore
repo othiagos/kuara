@@ -2,8 +2,10 @@
 node_modules/
 */node_modules/
 
-# Environment files (keep .env.example committed)
+# Environment files (keep .env.example and .env.prod.example committed)
 .env
+.env.prod
+.env.production
 .env.local
 .env.*.local
 backend/.env

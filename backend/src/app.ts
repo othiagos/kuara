@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import { ENV } from "./config/env";
 import { authRouter } from "./modules/auth/auth.routes";
 import { providerRouter } from "./modules/providers/provider.routes";
 import { serviceRouter } from "./modules/services/service.routes";
@@ -12,7 +13,13 @@ import { errorHandler } from "./shared/middlewares/errorHandler";
 
 export const app = express();
 
-app.use(cors());
+app.set("trust proxy", 1);
+
+const allowedOrigins = ENV.CORS_ORIGIN.split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.use(allowedOrigins.length > 0 ? cors({ origin: allowedOrigins }) : cors());
 app.use(express.json());
 
 app.get("/api/health", (_req, res) => {
